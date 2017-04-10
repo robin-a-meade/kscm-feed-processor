@@ -1,0 +1,32 @@
+# * 2017-04-10 Robin Meade <meader@hawaii.edu>
+# - IntelliJ IDEA doesn't seem to respect max_line_length. 
+#   I have to manually set it in the IDE: 
+#   Settings > Editor > Code Style > Right Margin
+# - FYI, IntelliJ IDEA can export many of its editor settings to 
+#   an .editorconfig files. This feature was added in 2016.3:
+#   https://youtrack.jetbrains.com/issue/WEB-15687#tab=Comments
+
+# Top-most EditorConfig file
+root = true
+
+# Defaults for all editor files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+max_line_length = 120
+trim_trailing_whitespace = true
+
+# Files with a smaller indent
+[*.{json,xml,yml}]
+indent_size = 2
+
+# Java specific settings
+[*.java]
+continuation_indent_size = 8
+
+# Markdown specific settings
+[*.md]
+trim_trailing_whitespace = false
