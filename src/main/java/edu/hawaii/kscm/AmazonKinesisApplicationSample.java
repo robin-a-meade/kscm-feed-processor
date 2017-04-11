@@ -36,6 +36,8 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionIn
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.amazonaws.services.kinesis.model.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -45,6 +47,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public final class AmazonKinesisApplicationSample implements CommandLineRunner {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /*
      * Before running the code:
@@ -67,7 +70,10 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
     private String SAMPLE_APPLICATION_NAME;
 
     @Value("${app.kinesis_application_region_name}")
-    private final String APPLICATION_REGION_NAME;
+    private String APPLICATION_REGION_NAME;
+
+    @Value("${app.profile}")
+    private String profile;
 
     // Initial position in the stream when the application starts up for the first time.
     // Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
@@ -77,6 +83,9 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
     private AWSCredentialsProvider credentialsProvider;
 
     private void init() {
+        logger.info("init");
+        logger.info("Profile: {}", profile);
+
         // Ensure the JVM will refresh the cached IP values of AWS resources (e.g. service endpoints).
         java.security.Security.setProperty("networkaddress.cache.ttl", "60");
 
@@ -85,7 +94,7 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
          * credential profile by reading from the credentials file located at
          * (~/.aws/credentials).
          */
-        credentialsProvider = new ProfileCredentialsProvider();
+        credentialsProvider = new ProfileCredentialsProvider(profile);
         try {
             credentialsProvider.getCredentials();
         } catch (Exception e) {
