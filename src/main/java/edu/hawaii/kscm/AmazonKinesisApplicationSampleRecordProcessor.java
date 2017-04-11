@@ -21,11 +21,6 @@
 
 package edu.hawaii.kscm;
 
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.util.List;
-
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.InvalidStateException;
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.ShutdownException;
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.ThrottlingException;
@@ -35,6 +30,11 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
 import com.amazonaws.services.kinesis.model.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.util.List;
 
 /**
  * Processes records and checkpoints progress.
@@ -53,6 +53,8 @@ public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordPro
     private long nextCheckpointTimeInMillis;
 
     private final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+
+    private KscmRecordProcessor kscmRecordProcessor = new KscmRecordProcessor();
 
     /**
      * {@inheritDoc}
@@ -127,8 +129,11 @@ public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordPro
         try {
             // For this app, we interpret the payload as UTF-8 chars.
             data = decoder.decode(record.getData()).toString();
-
-            logger.info(record.getSequenceNumber() + ", " + record.getPartitionKey() + ", " + data);
+            if (kscmRecordProcessor == null) {
+                logger.error("kscmRecordProcessor is null");
+            } else {
+                kscmRecordProcessor.processRecord(record.getSequenceNumber(), record.getPartitionKey(), data);
+            }
         } catch (CharacterCodingException e) {
             logger.error("Malformed data: " + data, e);
         }
