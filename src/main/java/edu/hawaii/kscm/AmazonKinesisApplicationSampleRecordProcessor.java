@@ -85,7 +85,7 @@ public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordPro
     /**
      * Process records performing retries as needed. Skip "poison pill" records.
      *
-     * @param records Data records to be processed.
+     * @param records MessageData records to be processed.
      */
     private void processRecordsWithRetries(List<Record> records) {
         for (Record record : records) {
@@ -122,18 +122,14 @@ public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordPro
      *
      * @param record The record to be processed.
      */
-    private void processSingleRecord(Record record) {
+    private void processSingleRecord(Record record) throws Exception {
         // TODO Add your own record processing logic here
 
         String data = null;
         try {
             // For this app, we interpret the payload as UTF-8 chars.
             data = decoder.decode(record.getData()).toString();
-            if (kscmRecordProcessor == null) {
-                logger.error("kscmRecordProcessor is null");
-            } else {
-                kscmRecordProcessor.processRecord(record.getSequenceNumber(), record.getPartitionKey(), data);
-            }
+            kscmRecordProcessor.processRecord(record.getSequenceNumber(), record.getPartitionKey(), data);
         } catch (CharacterCodingException e) {
             logger.error("Malformed data: " + data, e);
         }
