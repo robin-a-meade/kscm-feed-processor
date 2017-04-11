@@ -1,5 +1,6 @@
 /*
- * Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Original work Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Modified work Copyright 2017 University of Hawaii
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -11,6 +12,11 @@
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
+ */
+
+/*
+ * Original work:
+ * https://github.com/aws/aws-sdk-java/blob/1.11.118/src/samples/AmazonKinesis/AmazonKinesisApplicationSampleRecordProcessor.java
  */
 
 import java.nio.charset.CharacterCodingException;
