@@ -66,6 +66,9 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
     @Value("${app.kinesis_application_name}")
     private String SAMPLE_APPLICATION_NAME;
 
+    @Value("${app.kinesis_application_region_name}")
+    private final String APPLICATION_REGION_NAME;
+
     // Initial position in the stream when the application starts up for the first time.
     // Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
     private InitialPositionInStream SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM =
@@ -107,6 +110,8 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
                         SAMPLE_APPLICATION_STREAM_NAME,
                         credentialsProvider,
                         workerId);
+
+        kinesisClientLibConfiguration.withRegionName(APPLICATION_REGION_NAME);
 
         kinesisClientLibConfiguration.withInitialPositionInStream(SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM);
 
