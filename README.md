@@ -26,16 +26,13 @@ NOTE: In above we used AWS credential _profiles_. But you don't need to set AWS_
 SPRING_PROFILES_ACTIVE=stg java -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
 ```
 
-or
+or, if you prefer JVM system properties:
 
 ```
 java Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
 ```
 
-if you prefer JVM system properties.
-
-
-Above commands are for the _staging_ environment. For _production_, swap `stg` with `prd`. 
+**NOTE:** Above commands are for the _staging_ environment. For _production_, swap `stg` with `prd`. 
 
 
 
