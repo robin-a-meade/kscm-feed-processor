@@ -19,6 +19,8 @@
  * https://github.com/aws/aws-sdk-java/blob/1.11.118/src/samples/AmazonKinesis/AmazonKinesisApplicationSampleRecordProcessor.java
  */
 
+package edu.hawaii.kscm;
+
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;

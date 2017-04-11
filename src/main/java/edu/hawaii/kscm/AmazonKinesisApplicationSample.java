@@ -19,6 +19,8 @@
  * https://github.com/aws/aws-sdk-java/blob/1.11.118/src/samples/AmazonKinesis/AmazonKinesisApplicationSample.java
  */
 
+package edu.hawaii.kscm;
+
 import java.net.InetAddress;
 import java.util.UUID;
 
