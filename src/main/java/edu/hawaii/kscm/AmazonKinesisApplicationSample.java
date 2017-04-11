@@ -36,11 +36,15 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionIn
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.amazonaws.services.kinesis.model.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 /**
  * Sample Amazon Kinesis Application.
  */
-public final class AmazonKinesisApplicationSample {
+@Component
+public final class AmazonKinesisApplicationSample implements CommandLineRunner {
 
     /*
      * Before running the code:
@@ -55,18 +59,21 @@ public final class AmazonKinesisApplicationSample {
      *      the credentials file in your source directory.
      */
 
-    public static final String SAMPLE_APPLICATION_STREAM_NAME = "myFirstStream";
 
-    private static final String SAMPLE_APPLICATION_NAME = "SampleKinesisApplication";
+    @Value("${app.kinesis_application_stream_name}")
+    private String SAMPLE_APPLICATION_STREAM_NAME;
+
+    @Value("${app.kinesis_application_name}")
+    private String SAMPLE_APPLICATION_NAME;
 
     // Initial position in the stream when the application starts up for the first time.
     // Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
-    private static final InitialPositionInStream SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM =
+    private InitialPositionInStream SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM =
             InitialPositionInStream.LATEST;
 
-    private static AWSCredentialsProvider credentialsProvider;
+    private AWSCredentialsProvider credentialsProvider;
 
-    private static void init() {
+    private void init() {
         // Ensure the JVM will refresh the cached IP values of AWS resources (e.g. service endpoints).
         java.security.Security.setProperty("networkaddress.cache.ttl", "60");
 
@@ -85,7 +92,8 @@ public final class AmazonKinesisApplicationSample {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    @Override
+    public void run(String... args) throws Exception {
         init();
 
         if (args.length == 1 && "delete-resources".equals(args[0])) {
@@ -99,6 +107,7 @@ public final class AmazonKinesisApplicationSample {
                         SAMPLE_APPLICATION_STREAM_NAME,
                         credentialsProvider,
                         workerId);
+
         kinesisClientLibConfiguration.withInitialPositionInStream(SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM);
 
         IRecordProcessorFactory recordProcessorFactory = new AmazonKinesisApplicationRecordProcessorFactory();
@@ -120,7 +129,7 @@ public final class AmazonKinesisApplicationSample {
         System.exit(exitCode);
     }
 
-    public static void deleteResources() {
+    public void deleteResources() {
         AWSCredentials credentials = credentialsProvider.getCredentials();
 
         // Delete the stream
