@@ -127,7 +127,7 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
         IRecordProcessorFactory recordProcessorFactory = new AmazonKinesisApplicationRecordProcessorFactory();
         Worker worker = new Worker(recordProcessorFactory, kinesisClientLibConfiguration);
 
-        System.out.printf("Running %s to process stream %s as worker %s...\n",
+        logger.info("Running {} to process stream {} as worker {}...",
                 SAMPLE_APPLICATION_NAME,
                 SAMPLE_APPLICATION_STREAM_NAME,
                 workerId);
