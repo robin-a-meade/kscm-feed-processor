@@ -29,7 +29,7 @@ SPRING_PROFILES_ACTIVE=stg java -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.j
 or, if you prefer JVM system properties:
 
 ```
-java Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
 ```
 
 **NOTE:** Above commands are for the _staging_ environment. For _production_, swap `stg` with `prd`. 
