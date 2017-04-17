@@ -22,6 +22,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
+    <com.oracle.jdbc.version>12.1.0.2</com.oracle.jdbc.version>
   </properties>
 
   <repositories>
@@ -67,6 +68,46 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.jdbc</groupId>
+      <artifactId>ojdbc7</artifactId>
+      <version>${com.oracle.jdbc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.jdbc</groupId>
+      <artifactId>ucp</artifactId>
+      <version>${com.oracle.jdbc.version}</version>
+    </dependency>
+    <!--
+       ons.jar
+       This was required when setting
+       fastConnectionFailoverEnabled=true
+       or you'll get error:
+       java.lang.NoClassDefFoundError: oracle/ons/Subscriber
+    -->
+    <dependency>
+      <groupId>com.oracle.jdbc</groupId>
+      <artifactId>ons</artifactId>
+      <version>${com.oracle.jdbc.version}</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>

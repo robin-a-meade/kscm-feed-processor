@@ -25,3 +25,12 @@ nbdist/
 
 ### nohup.out ###
 /nohup.out
+
+### config files ###
+/config/
+
+### Misc ###
+/notes.txt
+/tmp_course.json
+
+

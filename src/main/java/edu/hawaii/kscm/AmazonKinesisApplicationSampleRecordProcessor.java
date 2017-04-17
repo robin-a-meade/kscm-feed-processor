@@ -42,6 +42,11 @@ import java.util.List;
 public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Config config;
+
+
+
     private String kinesisShardId;
 
     // Backoff and retry settings
@@ -54,7 +59,12 @@ public class AmazonKinesisApplicationSampleRecordProcessor implements IRecordPro
 
     private final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
 
-    private KscmRecordProcessor kscmRecordProcessor = new KscmRecordProcessor();
+    private final KscmRecordProcessor kscmRecordProcessor;
+
+    public AmazonKinesisApplicationSampleRecordProcessor(Config config) {
+        this.config = config;
+        kscmRecordProcessor = config.getApplicationContext().getBean("kscmRecordProcessor", KscmRecordProcessor.class);
+    }
 
     /**
      * {@inheritDoc}

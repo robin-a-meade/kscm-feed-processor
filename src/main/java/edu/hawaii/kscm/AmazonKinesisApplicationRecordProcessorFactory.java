@@ -23,16 +23,23 @@ package edu.hawaii.kscm;
 
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Used to create new record processors.
  */
+@Component
 public class AmazonKinesisApplicationRecordProcessorFactory implements IRecordProcessorFactory {
+
+    @Autowired
+    Config config;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public IRecordProcessor createProcessor() {
-        return new AmazonKinesisApplicationSampleRecordProcessor();
+        return new AmazonKinesisApplicationSampleRecordProcessor(config);
     }
 }

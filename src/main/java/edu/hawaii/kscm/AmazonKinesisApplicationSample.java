@@ -38,6 +38,7 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.amazonaws.services.kinesis.model.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,7 @@ import org.springframework.stereotype.Component;
  * Sample Amazon Kinesis Application.
  */
 @Component
-public final class AmazonKinesisApplicationSample implements CommandLineRunner {
+public final class AmazonKinesisApplicationSample {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /*
@@ -62,6 +63,8 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
      *      the credentials file in your source directory.
      */
 
+    @Value("${app.profile}")
+    private String profile;
 
     @Value("${app.kinesis_application_stream_name}")
     private String SAMPLE_APPLICATION_STREAM_NAME;
@@ -72,8 +75,9 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
     @Value("${app.kinesis_application_region_name}")
     private String APPLICATION_REGION_NAME;
 
-    @Value("${app.profile}")
-    private String profile;
+    @Autowired
+    IRecordProcessorFactory recordProcessorFactory;
+
 
     // Initial position in the stream when the application starts up for the first time.
     // Position can be one of LATEST (most recent data) or TRIM_HORIZON (oldest available data)
@@ -104,7 +108,6 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
         }
     }
 
-    @Override
     public void run(String... args) throws Exception {
         init();
 
@@ -124,7 +127,7 @@ public final class AmazonKinesisApplicationSample implements CommandLineRunner {
 
         kinesisClientLibConfiguration.withInitialPositionInStream(SAMPLE_APPLICATION_INITIAL_POSITION_IN_STREAM);
 
-        IRecordProcessorFactory recordProcessorFactory = new AmazonKinesisApplicationRecordProcessorFactory();
+        //IRecordProcessorFactory recordProcessorFactory = new AmazonKinesisApplicationRecordProcessorFactory();
         Worker worker = new Worker(recordProcessorFactory, kinesisClientLibConfiguration);
 
         logger.info("Running {} to process stream {} as worker {}...",
