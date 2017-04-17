@@ -29,6 +29,9 @@ nbdist/
 ### config files ###
 /config/
 
+### log files ###
+*.log
+
 ### Misc ###
 /notes.txt
 /tmp_course.json
