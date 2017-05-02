@@ -22,7 +22,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <com.oracle.jdbc.version>12.1.0.2</com.oracle.jdbc.version>
+
+    <!-- Tracking latest release of com.orajdbcTemplatejdbc -->
+    <com.oracle.jdbc.version>12.2.0.1</com.oracle.jdbc.version>
+
+    <!-- Tracking latest release of org.apache:commons-lang3 -->
+    <org.apache.commons-lang3.version>3.5</org.apache.commons-lang3.version>
   </properties>
 
   <repositories>
@@ -54,6 +59,12 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- added Apr 17 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -86,7 +97,7 @@
     </dependency>
     <dependency>
       <groupId>com.oracle.jdbc</groupId>
-      <artifactId>ojdbc7</artifactId>
+      <artifactId>ojdbc8</artifactId>
       <version>${com.oracle.jdbc.version}</version>
     </dependency>
     <dependency>
@@ -107,6 +118,11 @@
       <version>${com.oracle.jdbc.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${org.apache.commons-lang3.version}</version>
+    </dependency>
 
   </dependencies>
 
