@@ -123,7 +123,16 @@
       <artifactId>commons-lang3</artifactId>
       <version>${org.apache.commons-lang3.version}</version>
     </dependency>
-
+    <!--
+      janino
+      This is required for conditional configuration directives in logback.xml
+      https://layer4.fr/blog/2016/10/25/efficient-logging-spring-boot-logback-logstash/
+      https://springframework.guru/using-logback-spring-boot/
+    -->
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
