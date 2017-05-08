@@ -17,7 +17,7 @@ aws_secret_access_key=
 ```
 
 NOTE: In above we used AWS credential _profiles_. But you don't need to set the AWS_PROFILE environment variable. 
-The app was designed so that the `spring.profiles.active` Spring Environment Property determines the AWS credentials profile. 
+The app was designed so that the `spring.profiles.active` Spring Environment property determines the AWS credentials profile. 
 For example, setting `SPRING_PROFILES_ACTIVE=stg` is sufficient. 
 
 
@@ -77,7 +77,7 @@ $ tree
     └── kscm-feed-processor-stg.log
 ```
 
-We create the unversioned symlink because we don't want the version to be part of the SysVinit service name (which we are about to create).
+We create an unversioned symlink because we don't want the version to be part of the SysVinit service name (which we are about to create).
 
 The `.conf` file can be used to set a handful of environment variables that affect how the jar is started. 
 It is 
@@ -93,8 +93,6 @@ $ cat kscm-feed-processor-0.0.8-SNAPSHOT.conf
 JAVA_OPTS=-Dspring.profiles.active=stg
 JAVA_HOME=/usr/java/latest
 ```
-
-A
 
 Finally, we create the SysVinit service:
 ```sh
