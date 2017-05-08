@@ -16,20 +16,22 @@ aws_access_key_id=
 aws_secret_access_key=
 ```
 
-NOTE: In above we used AWS credential _profiles_. But you don't need to set AWS_PROFILE environment variable. The app was designed so that the SPRING_PROFILES_ACTIVE determines the AWS credentials profile. For example, setting `SPRING_PROFILES_ACTIVE=stg` is sufficient. 
+NOTE: In above we used AWS credential _profiles_. But you don't need to set the AWS_PROFILE environment variable. 
+The app was designed so that the `spring.profiles.active` Spring Environment Property determines the AWS credentials profile. 
+For example, setting `SPRING_PROFILES_ACTIVE=stg` is sufficient. 
 
 
 ## How to run
 
 
 ```
-SPRING_PROFILES_ACTIVE=stg java -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
+SPRING_PROFILES_ACTIVE=stg java -jar target/kscm-feed-processor-0.0.8-SNAPSHOT.jar
 ```
 
 or, if you prefer JVM system properties:
 
 ```
-java -Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.8-SNAPSHOT.jar
 ```
 
 **NOTE:** Above commands are for the _staging_ environment. For _production_, swap `stg` with `prd`. 
@@ -80,8 +82,8 @@ We create the unversioned symlink because we don't want the version to be part o
 The `.conf` file can be used to set a handful of environment variables that affect how the jar is started. 
 It is 
 [part](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html#deployment-script-customization-when-it-runs)
-of the functionality built into Spring Boot's fully executable jar 
-feature. We just need it to set JAVA_OPTS to specify the active Spring profile(s):
+of the functionality built into Spring Boot's _fully executable jar_ 
+feature. We use it to specify the active Spring profile(s) by setting the JAVA_OPTS environment variable:
 
 ```sh
 $ cat kscm-feed-processor-0.0.8-SNAPSHOT.conf
@@ -96,21 +98,56 @@ sudo ln -s /tmp/kscm-feed-processor/kscm-feed-processor.jar /etc/init.d/kscm-fee
 # Add the service
 sudo chkconfig --add kscm-feed-processor.jar
 
-# Check what the default run levels is has been enabled for
+# Check what default run levels have been enabled
 $ chkconfig --list kscm-feed-processor.jar
 kscm-feed-processor.jar 0:off 1:off 2:off 3:on 4:on 5:on 6:off
 
 # Manually start it
 sudo service kscm-feed-processor.jar start
+
+# Check status
+$ sudo service kscm-feed-processor.jar status
+Running [15630]
+
+# Stop it
+$ sudo service kscm-feed-processor.jar stop
+Stopped [15630]
 ```
 
 NOTE: A feature of Spring Boot's fully executable jar is that it changes the 
 `current working directory` to the directory containing the `jar` file. That's
-how it is able to detect the `.conf` file sitting in the same directory.
+how it is able to detect the `.conf` file sitting in the same directory. It is also 
+what allows us to specify the log file location as relative to the `jar` file location.
 
 ## Installation as a systemd service
-The above linked spring-boot document has a section of installing as a systemd service.
-However, our current deployement server is running RHEL6 and "RHEL6 isn't systemd-based. It's … the last RHEL that uses old-style SYSV init scripts" https://serverfault.com/questions/740404
+The above linked spring-boot document has a section on installing as a systemd service.
+However, our current deployement server is running RHEL6 and "RHEL6 isn't systemd-based. 
+It's … the last RHEL that uses old-style SYSV init scripts" https://serverfault.com/questions/740404
+
+## Logging
+
+Spring Boot bakes in best practices for using java in an enterprise environment. 
+As such, it includes intelligent logging defaults.
+
+By default, Spring Boot apps using the logback logging framework and configures to use 
+a rolling file appender that gets rolled when the file reaches 10 MB. Seems reasonable.
+
+We used the `logging.file` Spring Environment property to configure the logs to be 
+relative to the current working directory (which, if using the _fully executed jar_ feature, gets set
+to the directory containing the `jar` file):
+
+```
+logging.file=logs/kscm-feed-processor-${app.profile}.log
+```
+
+Related links:
+- [Spring Boot Reference Guide § 76. Logging](https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html)<br>
+  _docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html_
+- [Spring Boot's default logback configuration](https://github.com/spring-projects/spring-boot/tree/master/spring-boot/src/main/resources/org/springframework/boot/logging/logback)<br>
+  _github.com/spring-projects/spring-boot/tree/master/spring-boot/src/main/resources/org/springframework/boot/logging/logback_
+- [Using Logback with Spring Boot](https://springframework.guru/using-logback-spring-boot/)<br>
+  _https://springframework.guru/using-logback-spring-boot/_
+  
 
 ## Logging to console
 
