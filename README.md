@@ -121,7 +121,7 @@ Stopped [15630]
 NOTE: A feature of Spring Boot's fully executable jar is that it changes the 
 `current working directory` to the directory containing the `jar` file. That's
 how it is able to detect the `.conf` file sitting in the same directory. It is also 
-what allows us to specify a relative path to the log file.
+what allows us to specify a relative path for the log file.
 
 ## Installation as a systemd service
 The above linked spring-boot document has a section on installing as a systemd service.
@@ -150,7 +150,7 @@ Related links:
 - [Spring Boot's default logback configuration](https://github.com/spring-projects/spring-boot/tree/master/spring-boot/src/main/resources/org/springframework/boot/logging/logback)<br>
   _github.com/spring-projects/spring-boot/tree/master/spring-boot/src/main/resources/org/springframework/boot/logging/logback_
 - [Using Logback with Spring Boot](https://springframework.guru/using-logback-spring-boot/)<br>
-  _https://springframework.guru/using-logback-spring-boot/_
+  _springframework.guru/using-logback-spring-boot_
   
 
 ## Logging to console
