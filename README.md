@@ -83,12 +83,18 @@ The `.conf` file can be used to set a handful of environment variables that affe
 It is 
 [part](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html#deployment-script-customization-when-it-runs)
 of the functionality built into Spring Boot's _fully executable jar_ 
-feature. We use it to specify the active Spring profile(s) by setting the JAVA_OPTS environment variable:
+feature. We use it to set two environment variables:
+
+1. JAVA_OPTS: to specify the active Spring profile(s), and
+2. JAVA_HOME: to select the Java 8 JVM
 
 ```sh
 $ cat kscm-feed-processor-0.0.8-SNAPSHOT.conf
 JAVA_OPTS=-Dspring.profiles.active=stg
+JAVA_HOME=/usr/java/latest
 ```
+
+A
 
 Finally, we create the SysVinit service:
 ```sh
@@ -117,7 +123,7 @@ Stopped [15630]
 NOTE: A feature of Spring Boot's fully executable jar is that it changes the 
 `current working directory` to the directory containing the `jar` file. That's
 how it is able to detect the `.conf` file sitting in the same directory. It is also 
-what allows us to specify the log file location as relative to the `jar` file location.
+what allows us to specify a relative path to the log file.
 
 ## Installation as a systemd service
 The above linked spring-boot document has a section on installing as a systemd service.
@@ -129,11 +135,11 @@ It's … the last RHEL that uses old-style SYSV init scripts" https://serverfaul
 Spring Boot bakes in best practices for using java in an enterprise environment. 
 As such, it includes intelligent logging defaults.
 
-By default, Spring Boot apps using the logback logging framework and configures to use 
+By default, Spring Boot apps using the [Logback](https://logback.qos.ch/) logging framework and configures to use 
 a rolling file appender that gets rolled when the file reaches 10 MB. Seems reasonable.
 
 We used the `logging.file` Spring Environment property to configure the logs to be 
-relative to the current working directory (which, if using the _fully executed jar_ feature, gets set
+relative to the current working directory (which, if using the _fully executable jar_ feature, gets set
 to the directory containing the `jar` file):
 
 ```
