@@ -59,6 +59,7 @@ public class KscmFeedProcessorApplication implements CommandLineRunner {
     }
 
     public static void main(String[] args) {
+        System.out.println("Working Directory: " + System.getProperty("user.dir"));
         SpringApplication.run(KscmFeedProcessorApplication.class, args);
 	}
 }
