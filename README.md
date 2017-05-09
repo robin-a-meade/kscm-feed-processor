@@ -133,8 +133,8 @@ It's … the last RHEL that uses old-style SYSV init scripts" https://serverfaul
 Spring Boot bakes in best practices for using java in an enterprise environment. 
 As such, it includes intelligent logging defaults.
 
-By default, Spring Boot apps using the [Logback](https://logback.qos.ch/) logging framework and configures to use 
-a rolling file appender that gets rolled when the file reaches 10 MB. Seems reasonable.
+By default, Spring Boot apps using the [Logback](https://logback.qos.ch/) logging framework and configures it to use 
+a rolling file appender that gets rolled when the file reaches 10 MB. We'll stick with that.
 
 We used the `logging.file` Spring Environment property to configure the logs to be 
 relative to the current working directory (which, if using the _fully executable jar_ feature, gets set
