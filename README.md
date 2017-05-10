@@ -86,7 +86,7 @@ of the functionality built into Spring Boot's _fully executable jar_
 feature. We use it to set two environment variables:
 
 1. JAVA_OPTS: to specify the active Spring profile(s), and
-2. JAVA_HOME: to select the Java 8 JVM
+2. JAVA_HOME: to select the Java 8 JVM (The embedded script within the jar will use `${JAVA_HOME}/bin/java`)
 
 ```sh
 $ cat kscm-feed-processor-0.0.8-SNAPSHOT.conf
@@ -125,7 +125,7 @@ what allows us to specify a relative path for the log file.
 
 ## Installation as a systemd service
 The above linked spring-boot document has a section on installing as a systemd service.
-However, our current deployement server is running RHEL6 and "RHEL6 isn't systemd-based. 
+However, our current deployment server is running RHEL6 and "RHEL6 isn't systemd-based. 
 It's … the last RHEL that uses old-style SYSV init scripts" https://serverfault.com/questions/740404
 
 ## Logging
