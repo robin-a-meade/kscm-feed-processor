@@ -124,7 +124,7 @@ how it is able to detect the `.conf` file sitting in the same directory. It is a
 what allows us to specify a relative path for the log file.
 
 ## Installation as a systemd service
-The above linked spring-boot document has a section on installing as a systemd service.
+The above linked Spring Boot document has a section on installing as a systemd service.
 However, our current deployment server is running RHEL6 and "RHEL6 isn't systemd-based. 
 It's … the last RHEL that uses old-style SYSV init scripts" https://serverfault.com/questions/740404
 
