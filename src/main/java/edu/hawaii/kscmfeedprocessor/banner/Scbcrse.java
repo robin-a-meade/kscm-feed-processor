@@ -71,6 +71,20 @@ public class Scbcrse {
     private List<Scrschd> listOfScrschd;
     // scrsyln
     private Scrsyln scrsyln;
+    // scrsylo
+    private Scrsylo scrsylo;
+    // scbsupp
+    private Scbsupp scbsupp;
+    // scrintg
+    private List<Scrintg> listOfScrintg;
+    // scrtext
+    private List<Scrtext> listOfScrtext;
+    // scrfees
+    private List<Scrfees> listOfScrfees;
+    // screqiv
+    private List<Screqiv> listOfScreqiv;
+    // scrcorq
+    private List<Scrcorq> listOfScrcorq;
 
     public String toJson() {
         return Util.toJson(this);
@@ -453,6 +467,14 @@ public class Scbcrse {
         this.scrsyln = scrsyln;
     }
 
+    public Scrsylo getScrsylo() {
+        return scrsylo;
+    }
+
+    public void setScrsylo(Scrsylo scrsylo) {
+        this.scrsylo = scrsylo;
+    }
+
     public String getRepsCode() {
         return repsCode;
     }
@@ -467,5 +489,53 @@ public class Scbcrse {
 
     public void setCappPrereqTestInd(String cappPrereqTestInd) {
         this.cappPrereqTestInd = cappPrereqTestInd;
+    }
+
+    public Scbsupp getScbsupp() {
+        return scbsupp;
+    }
+
+    public void setScbsupp(Scbsupp scbsupp) {
+        this.scbsupp = scbsupp;
+    }
+
+    public List<Scrintg> getListOfScrintg() {
+        return listOfScrintg;
+    }
+
+    public void setListOfScrintg(List<Scrintg> listOfScrintg) {
+        this.listOfScrintg = listOfScrintg;
+    }
+
+    public List<Scrtext> getListOfScrtext() {
+        return listOfScrtext;
+    }
+
+    public void setListOfScrtext(List<Scrtext> listOfScrtext) {
+        this.listOfScrtext = listOfScrtext;
+    }
+
+    public List<Scrfees> getListOfScrfees() {
+        return listOfScrfees;
+    }
+
+    public void setListOfScrfees(List<Scrfees> listOfScrfees) {
+        this.listOfScrfees = listOfScrfees;
+    }
+
+    public List<Screqiv> getListOfScreqiv() {
+        return listOfScreqiv;
+    }
+
+    public void setListOfScreqiv(List<Screqiv> listOfScreqiv) {
+        this.listOfScreqiv = listOfScreqiv;
+    }
+
+    public List<Scrcorq> getListOfScrcorq() {
+        return listOfScrcorq;
+    }
+
+    public void setListOfScrcorq(List<Scrcorq> listOfScrcorq) {
+        this.listOfScrcorq = listOfScrcorq;
     }
 }

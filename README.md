@@ -34,6 +34,12 @@ or, if you prefer JVM system properties:
 java -Dspring.profiles.active=stg -jar target/kscm-feed-processor-0.0.8-SNAPSHOT.jar
 ```
 
+or, if you prefer command line switch:
+
+```
+java -jar target/kscm-feed-processor-0.0.8-SNAPSHOT.jar --spring.profiles.active=stg
+```
+
 **NOTE:** Above commands are for the _staging_ environment. For _production_, swap `stg` with `prd`. 
 
 ## How to run as a Unix/Linux service

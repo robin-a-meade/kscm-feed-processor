@@ -8,6 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Component
 public class KscmRecordProcessor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -24,11 +29,27 @@ public class KscmRecordProcessor {
 
     public void processRecord(String sequenceNumber, String partitionKey, String messageJsonString) throws Exception {
         logger.debug("processRecord {}: {}", partitionKey, messageJsonString);
+        if (messageJsonString == null || messageJsonString.length() == 0) {
+            logger.debug("messageJsonString was null or zero length!");
+            return;
+        }
 
         String instCode = this.config.getInstCodeFromPartitionKey(partitionKey);
 
+        // Return if this isn't one of the institutions that is configured to be processed
+        if (!this.config.getInstCodes().contains(instCode)) {
+            return;
+        }
+
         ObjectMapper objectMapper = new ObjectMapper();
         MessageData messageData = objectMapper.readValue(messageJsonString, MessageData.class);
+        if (messageData.resource.equals("courses") && messageData.delta.operation.equals("update") && messageData.delta.changes[0].vals.get
+                ("updated") != null) {
+            long millisecondsSinceEpoch = messageData.delta.changes[0].vals.get("updated").asLong();
+            Instant instant = Instant.ofEpochMilli(millisecondsSinceEpoch);
+            ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+            logger.info("course update: {} {} {}", instCode, zdt, messageJsonString);
+        }
 
         if (userCheckedBannerIntegrationFlag(messageData)) {
 
@@ -60,11 +81,13 @@ public class KscmRecordProcessor {
         if (bannerIntegrationFlagJsonNode != null && bannerIntegrationFlagJsonNode.asBoolean(false)) {
             return true;
         }
+        /*
         // Account for misspelled GKey
         JsonNode bannerintegrationFlagJsonNode = messageData.delta.changes[0].vals.get("bannerintegrationFlag");
         if (bannerintegrationFlagJsonNode != null && bannerintegrationFlagJsonNode.asBoolean(false)) {
             return true;
         }
+        */
         return false;
     }
 

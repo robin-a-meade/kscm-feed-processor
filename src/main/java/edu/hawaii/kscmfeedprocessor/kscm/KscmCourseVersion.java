@@ -3,14 +3,12 @@ package edu.hawaii.kscmfeedprocessor.kscm;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Throwables;
 import edu.hawaii.kscmfeedprocessor.Util;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 public class KscmCourseVersion {
@@ -35,7 +33,11 @@ public class KscmCourseVersion {
 
     private String bdeTranscriptTitle;
 
-    private String description;
+    private String bdeLongTitle;
+
+    private String bdeCourseUrl;
+
+    private String bdeDescription;
 
     private String bdeCstaCode;
 
@@ -89,15 +91,13 @@ public class KscmCourseVersion {
 
     private Boolean bannerIntegrationFlag;
 
-    // To allow for misspelling
-    private Boolean bannerintegrationFlag;
-
     private String bannerIntegrationResults;
 
-    // To allow for misspelling
-    private String bannerintegrationResults;
+    private Term startTerm; // Terms 1.0 Obsolete
 
-    private Term startTerm;
+    private String dateStart; // Terms 3.0
+
+    private String dateStartLabel; // Terms 3.0
 
     private String bdeGradingOptionDef;
 
@@ -105,12 +105,64 @@ public class KscmCourseVersion {
 
     private CourseLevels bdeCourseLevels;
 
-    // To allow for misspelling
-    private CourseLevels bdeCourseLevel;
-
     private ScheduleTypes bdeScheduleTypes;
 
     private DegreeAttributes bdeDegreeAttributes;
+
+    private String bdeLearningObjectives;
+
+    private String bdeInstRpt;
+
+    private String[] bdeIntPartners;
+
+    public String[] getBdeIntPartners() {
+        return bdeIntPartners;
+    }
+
+    public void setBdeIntPartners(String[] bdeIntPartners) {
+        this.bdeIntPartners = bdeIntPartners;
+    }
+
+    private String[] bdeCorequisites;
+
+    public String[] getBdeCorequisites() {
+        return bdeCorequisites;
+    }
+
+    public void setBdeCorequisites(String[] bdeCorequisites) {
+        this.bdeCorequisites = bdeCorequisites;
+    }
+
+    private List<CourseTextRow> bdeCourseText;
+
+    public List<CourseTextRow> getBdeCourseText() {
+        return bdeCourseText;
+    }
+
+    public void setBdeCourseText(List<CourseTextRow> bdeCourseText) {
+        this.bdeCourseText = bdeCourseText;
+    }
+
+    private List<FeesRow> bdeFees;
+
+
+    public List<FeesRow> getBdeFees() {
+        return bdeFees;
+    }
+
+    public void setBdeFees(List<FeesRow> bdeFees) {
+        this.bdeFees = bdeFees;
+    }
+
+    private List<EquivalentCoursesRow> bdeEquivalentCourses;
+
+    public List<EquivalentCoursesRow> getBdeEquivalentCourses() {
+        return bdeEquivalentCourses;
+    }
+
+    public void setBdeEquivalentCourses(List<EquivalentCoursesRow> bdeEquivalentCourses) {
+        this.bdeEquivalentCourses = bdeEquivalentCourses;
+    }
 
     public String getInstCode() {
         return instCode;
@@ -184,12 +236,28 @@ public class KscmCourseVersion {
         this.bdeTranscriptTitle = bdeTranscriptTitle;
     }
 
-    public String getDescription() {
-        return description;
+    public String getBdeLongTitle() {
+        return bdeLongTitle;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBdeLongTitle(String bdeLongTitle) {
+        this.bdeLongTitle = bdeLongTitle;
+    }
+
+    public String getBdeCourseUrl() {
+        return bdeCourseUrl;
+    }
+
+    public void setBdeCourseUrl(String bdeCourseUrl) {
+        this.bdeCourseUrl = bdeCourseUrl;
+    }
+
+    public String getBdeDescription() {
+        return bdeDescription;
+    }
+
+    public void setBdeDescription(String bdeDescription) {
+        this.bdeDescription = bdeDescription;
     }
 
     public String getBdeCstaCode() {
@@ -393,43 +461,19 @@ public class KscmCourseVersion {
     }
 
     public Boolean getBannerIntegrationFlag() {
-        // Allow for misspelling
-        switch (this.instCode) {
-            case "MAN":
-                return bannerintegrationFlag;
-            default:
-                return bannerIntegrationFlag;
-        }
+        return bannerIntegrationFlag;
     }
 
-    // This is the proper spelling
     public void setBannerIntegrationFlag(Boolean bannerIntegrationFlag) {
         this.bannerIntegrationFlag = bannerIntegrationFlag;
     }
 
-    // To allow for misspelling
-    public void setBannerintegrationFlag(Boolean bannerintegrationFlag) {
-        this.bannerIntegrationFlag = bannerintegrationFlag;
-    }
-
     public String getBannerIntegrationResults() {
-        // To allow for misspelling
-        switch (this.instCode) {
-            case "MAN":
-                return bannerintegrationResults;
-            default:
-                return bannerIntegrationResults;
-        }
+        return bannerIntegrationResults;
     }
 
-    // This is the proper spelling
     public void setBannerIntegrationResults(String bannerIntegrationResults) {
         this.bannerIntegrationResults = bannerIntegrationResults;
-    }
-
-    // To allow for misspelling
-    public void setBannerintegrationResults(String bannerintegrationResults) {
-        this.bannerIntegrationResults = bannerintegrationResults;
     }
 
     public Term getStartTerm() {
@@ -438,6 +482,22 @@ public class KscmCourseVersion {
 
     public void setStartTerm(Term startTerm) {
         this.startTerm = startTerm;
+    }
+
+    public String getDateStart() {
+        return dateStart;
+    }
+
+    public void setDateStart(String dateStart) {
+        this.dateStart = dateStart;
+    }
+
+    public String getDateStartLabel() {
+        return dateStartLabel;
+    }
+
+    public void setDateStartLabel(String dateStartLabel) {
+        this.dateStartLabel = dateStartLabel;
     }
 
     public String getBdeGradingOptionDef() {
@@ -457,25 +517,13 @@ public class KscmCourseVersion {
     }
 
     public CourseLevels getBdeCourseLevels() {
-        switch (this.instCode) {
-            case "HAW":
-            case "LEE":
-            case "MAU":
-            case "WIN":
-            case "WOA":
-                return bdeCourseLevel;
-            default:
-                return bdeCourseLevels;
-        }
+        return bdeCourseLevels;
     }
 
     public void setBdeCourseLevels(CourseLevels bdeCourseLevels) {
         this.bdeCourseLevels = bdeCourseLevels;
     }
 
-    public void setBdeCourseLevel(CourseLevels bdeCourseLevel) {
-        this.bdeCourseLevel = bdeCourseLevel;
-    }
     public ScheduleTypes getBdeScheduleTypes() {
         return bdeScheduleTypes;
     }
@@ -485,20 +533,29 @@ public class KscmCourseVersion {
     }
 
     public DegreeAttributes getBdeDegreeAttributes() {
-        switch (this.instCode) {
-            case "WOA":
-                // Hard coded until schema is fixed, to get through testing
-                DegreeAttributes da = new DegreeAttributes();
-                da.setDegreeAttribute("attrDA", true);
-                return da;
-            default:
-                return bdeDegreeAttributes;
-        }
+        return bdeDegreeAttributes;
     }
 
     public void setBdeDegreeAttributes(DegreeAttributes bdeDegreeAttributes) {
         this.bdeDegreeAttributes = bdeDegreeAttributes;
     }
+
+    public String getBdeLearningObjectives() {
+        return bdeLearningObjectives;
+    }
+
+    public void setBdeLearningObjectives(String bdeLearningObjectives) {
+        this.bdeLearningObjectives = bdeLearningObjectives;
+    }
+
+    public String getBdeInstRpt() {
+        return bdeInstRpt;
+    }
+
+    public void setBdeInstRpt(String bdeInstRpt) {
+        this.bdeInstRpt = bdeInstRpt;
+    }
+
 
     /**********************************************************************
      *                        AdditionalProperties
@@ -518,6 +575,43 @@ public class KscmCourseVersion {
 
     public String toJson() {
         return Util.toJson(this);
+    }
+
+    public void afterDeserialization() throws Exception {
+        // BdeEquivalentCourses
+        List<EquivalentCoursesRow> listEquivalentCoursesRow = getBdeEquivalentCourses();
+        while (listEquivalentCoursesRow.remove(null));  // Remove nulls
+        // Remove rows with null data fields or empty string data fields
+        // Use ListIterator technique described here:
+        // [Remove elements from collection while iterating]
+        // (https://stackoverflow.com/questions/10431981)
+        ListIterator<EquivalentCoursesRow> iter = listEquivalentCoursesRow.listIterator();
+        while (iter.hasNext()) {
+            EquivalentCoursesRow equivalentCoursesRow = iter.next();
+            if (equivalentCoursesRow.getSubjNumb() == null || equivalentCoursesRow.getSubjNumb().trim().equals("")) {
+                iter.remove();
+                continue;
+            }
+            equivalentCoursesRow.parseSubjNumb();
+        }
+
+        // BdeFees
+        List<FeesRow> listFeesRow = getBdeFees();
+        while (listFeesRow.remove(null));  // Remove nulls
+
+        ListIterator<FeesRow> iterFeesRow = listFeesRow.listIterator();
+        while (iterFeesRow.hasNext()) {
+            FeesRow feesRow = iterFeesRow.next();
+            if (feesRow.getDetlCode() == null || feesRow.getDetlCode().trim().equals("")) {
+                iterFeesRow.remove();
+                continue;
+            }
+        }
+
+        // BdeCourseText
+        List<CourseTextRow> listCourseTextRow = getBdeCourseText();
+        while (listCourseTextRow.remove(null)); // Remove nulls
+
     }
 
 }

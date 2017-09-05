@@ -5,7 +5,7 @@ package edu.hawaii.kscmfeedprocessor;
  */
 public enum Status {
 
-    SUCCESS(0), FAILURE(1);
+    SUCCESS(0), FAILED(1);
 
     private int status;
 

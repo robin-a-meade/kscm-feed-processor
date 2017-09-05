@@ -28,9 +28,9 @@ public class KscmToBannerService {
 
         // Attempt to retrieve KSCM course data
         try {
-            runData.setKcv(kscmService.retrieveKscmCourseVersion(runData));
+            runData.setKcv(kscmService.retrieveKscmCourseVersion(runData, runData.getKscmCourseVersionId()));
         } catch (Exception e) {
-            runData.setStatus(Status.FAILURE);
+            runData.setStatus(Status.FAILED);
             msg = format("KscmToBannerService: Error: Couldn't retrieve KSCM course version %s %s", runData.getHostPrefix(), runData.getKscmCourseVersionId());
             runData.addMessage(msg, e);
             return;
@@ -43,7 +43,7 @@ public class KscmToBannerService {
         try {
             runData.setKscmUser(kscmService.retrieveKscmUser(runData));
         } catch (Exception e) {
-            runData.setStatus(Status.FAILURE);
+            runData.setStatus(Status.FAILED);
             msg = format("KscmToBannerService: Error: Couldn't retrieve KSCM user %s at %s for course id %s", updatedBy, runData.getHostPrefix(), runData
                     .getKscmCourseVersionId());
             runData.addMessage(msg, e);
@@ -58,9 +58,9 @@ public class KscmToBannerService {
         try {
             courseConverter.convert(runData);
         } catch (Exception e) {
-            runData.setStatus(Status.FAILURE);
+            runData.setStatus(Status.FAILED);
             msg = format("KscmToBannerService: Error: The data conversion step failed for %s %s ", runData.getHostPrefix(), runData.getKscmCourseVersionId());
-            runData.addMessage(msg);
+            runData.addMessage(msg, e);
             runData.addMessage(Util.summarizeConverted(runData.getConvertedScbcrse()));
             return;
         }
@@ -75,7 +75,7 @@ public class KscmToBannerService {
         try {
             bannerUpdaterService.updateBanner(runData); // Transactional
         } catch (Exception e) {
-            runData.setStatus(Status.FAILURE);
+            runData.setStatus(Status.FAILED);
             msg = format("KscmToBannerService: Error: An exception occurred while applying the data to Banner database for %s %s %s %s. Banner database transacton " +
                             "was rolled back.",
                     runData.getInstCode(), runData.getSubjCode(), runData.getCrseNumb(), runData.getEffTerm());

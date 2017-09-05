@@ -1,6 +1,6 @@
 package edu.hawaii.kscmfeedprocessor;
 
-import edu.hawaii.kscmfeedprocessor.kscm.KscmCourseVersion;
+import edu.hawaii.kscmfeedprocessor.kscm.InstitutionalReportingCodeOption;
 import edu.hawaii.kscmfeedprocessor.kscm.SubjectCodeOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,11 @@ public class KscmOptions {
     Map<String, SubjectCodeOption> subjectCodesById = new HashMap<>();
     public Map<String, SubjectCodeOption> getSubjectCodesById() {
         return subjectCodesById;
+    }
+
+    Map<String, InstitutionalReportingCodeOption> institutionalReportingCodesById = new HashMap<>();
+    public Map<String, InstitutionalReportingCodeOption> getInstitutionalReportingCodesById() {
+        return institutionalReportingCodesById;
     }
 
     Map<String, SubjectCodeOption> subjectCodesByCode = new HashMap<>();;
@@ -79,8 +84,36 @@ public class KscmOptions {
         logger.info("{} active: {}", this.instCode, countActive);
     }
 
+    public void initInstitutionalReportingCodesById () {
+        logger.info("{} initInstitutionalReportingCodesById", this.instCode);
+        String path = "/cm/options/types/Institutional Reporting Codes";
+
+        // Build invocation
+        WebTarget webTarget = kscmService.getWebTarget(instCode);
+        webTarget = webTarget.path(path);
+        Invocation.Builder ib = webTarget.request(MediaType.APPLICATION_JSON);
+        kscmService.addApiKey(ib, instCode);
+        Invocation invocation = ib.buildGet();
+
+        // Invoke it
+        InstitutionalReportingCodeOption[] a = invocation.invoke(InstitutionalReportingCodeOption[].class);
+
+        int count = 0;
+        int countActive = 0;
+        for(InstitutionalReportingCodeOption institutionalReportingCodeOption : a) {
+            ++count;
+            if (institutionalReportingCodeOption.getActive()) {
+                ++countActive;
+                institutionalReportingCodesById.put(institutionalReportingCodeOption.getId(), institutionalReportingCodeOption);
+            }
+        }
+        logger.info("{} count: {}", this.instCode, count);
+        logger.info("{} active: {}", this.instCode, countActive);
+    }
+
     public void init() {
         logger.info("{} KscmOptions.init()", this.instCode);
+        //initInstitutionalReportingCodesById();
         initSubjectCodesById();
         initSubjectCodesByCode();
     }

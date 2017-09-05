@@ -46,6 +46,9 @@ public class BannerUpdaterService {
     private ScrsylnDao scrsylnDao;
 
     @Autowired
+    private ScrsyloDao scrsyloDao;
+
+    @Autowired
     private ScrlevlDao scrlevlDao;
 
     @Autowired
@@ -56,6 +59,24 @@ public class BannerUpdaterService {
 
     @Autowired
     private ScrattrDao scrattrDao;
+
+    @Autowired
+    private ScbsuppDao scbsuppDao;
+
+    @Autowired
+    private ScrintgDao scrintgDao;
+
+    @Autowired
+    private ScrtextDao scrtextDao;
+
+    @Autowired
+    private ScrfeesDao scrfeesDao;
+
+    @Autowired
+    private ScreqivDao screqivDao;
+
+    @Autowired
+    private ScrcorqDao scrcorqDao;
 
     /**
      * Verify that the VPDI context has been set.
@@ -82,14 +103,11 @@ public class BannerUpdaterService {
     }
 
     /**
-     * Throws an exception if not successful. The exception will cause the transaction to rollback.
-     * In such case, the logs will show messages like this for logger <code>o.s.t.i.TransactionInterceptor</code>:
-     * <ul>
-     * <li>Completing transaction for [edu.hawaii.kscmfeedprocessor.BannerUpdaterService.bannerUpdater] after exception: java.lang.RuntimeException
-     * <li>Applying rules to determine whether transaction should rollback on java.lang.RuntimeException...
-     * <li>Initiating transaction rollback
-     * <li>Rolling back JDBC transaction on Connection [com.sun.proxy.$Proxy77@64f89238]
-     * </ul>
+     * Throws an exception if not successful. The exception will cause the transaction to rollback. In such case, the logs will show messages like this
+     * for logger <code>o.s.t.i.TransactionInterceptor</code>: <ul> <li>Completing transaction for [edu.hawaii.kscmfeedprocessor.BannerUpdaterService
+     * .bannerUpdater]
+     * after exception: java.lang.RuntimeException <li>Applying rules to determine whether transaction should rollback on java.lang.RuntimeException...
+     * <li>Initiating transaction rollback <li>Rolling back JDBC transaction on Connection [com.sun.proxy.$Proxy77@64f89238] </ul>
      */
     @Transactional
     public void updateBanner(RunData runData) throws Exception {
@@ -105,93 +123,27 @@ public class BannerUpdaterService {
 
             // Attempt to verify VPDI context
             verifyVpdiContext(instCode);
-            runData.addMessage(format("BannerUpdater: VPDI context was verified for %s in database '%s'", instCode, databaseName));
+
+            //runData.addMessage(format("BannerUpdater: VPDI context was verified for %s in database '%s'", instCode, databaseName));
+            // Until we properly set databaseName
+            runData.addMessage(format("BannerUpdater: VPDI context was verified for %s", instCode));
 
             //  Attempt to retrieve master course record
             Scbcrky scbcrky = scbcrkyDao.get(subjCode, crseNumb);
 
             if (scbcrky == null) {
 
-                // New course.  Do inserts for everything
+                // New course.
 
                 runData.addMessage(format("BannerUpdater: No SCBCRKY record yet exists for %s %s %s", instCode,
                         subjCode,
                         crseNumb));
 
-                // Scbcrky
+                // Insert SCBCRKY record.
                 recCount = scbcrkyDao.insert(subjCode, crseNumb, effTerm, runData.getUserId(), runData.getDataOrigin());
                 runData.addMessage(format("BannerUpdater: Inserted %d new SCBCRKY record: %s:%s:%s:%s:999999.", recCount,
                         instCode, subjCode, crseNumb, effTerm));
 
-                // Scbcrse
-                recCount = scbcrseDao.insert(convertedScbcrse);
-                runData.addMessage(format("BannerUpdater: Inserted %d SCBCRSE record: %s:%s:%s:%s:\"%s\"", recCount,
-                        instCode, subjCode, crseNumb, effTerm, convertedScbcrse.getTitle()));
-
-                // Scbdesc
-                Scbdesc scbdesc = convertedScbcrse.getScbdesc();
-                if (scbdesc != null) {
-                    recCount = scbdescDao.insert(scbdesc);
-                    runData.addMessage(format("BannerUpdater: Inserted %d SCBDESC record: %s:%s:%s:%s:%s", recCount,
-                            instCode, subjCode, crseNumb, effTerm, Util.javaQuote(scbdesc.getTextNarrative(), 40)));
-                }
-
-                // Scrsyln
-                Scrsyln scrsyln = convertedScbcrse.getScrsyln();
-                if (scrsyln != null) {
-                    recCount = scrsylnDao.insert(scrsyln);
-                    runData.addMessage(format("BannerUpdater: Inserted %d SCRSYLN record: %s:%s:%s:%s:%s", recCount,
-                            instCode, subjCode, crseNumb, effTerm, Util.javaQuote(scrsyln.getLongCourseTitle(), 40)));
-                }
-
-                // Scrlevl
-                int levlCodesCount = 0;
-                StringBuilder levlCodesAsString = new StringBuilder();
-                for (Scrlevl scrlevl : convertedScbcrse.getListOfScrlevl()) {
-                    recCount = scrlevlDao.insert(scrlevl);
-                    levlCodesCount += recCount;
-                    if (levlCodesCount > 1) levlCodesAsString.append(", ");
-                    levlCodesAsString.append(scrlevl.getLevlCode());
-                }
-                runData.addMessage(format("BannerUpdater: Inserted %d new SCRLEVL records: %s, for: %s:%s:%s:%s", levlCodesCount,
-                        levlCodesAsString.toString(), instCode, subjCode, crseNumb, effTerm));
-
-                // Scrgmod
-                int gmodCodesCount = 0;
-                StringBuilder gmodCodesAsString = new StringBuilder();
-                for (Scrgmod scrgmod : convertedScbcrse.getListOfScrgmod()) {
-                    recCount = scrgmodDao.insert(scrgmod);
-                    gmodCodesCount += recCount;
-                    if (gmodCodesCount > 1) gmodCodesAsString.append(", ");
-                    gmodCodesAsString.append(scrgmod.getGmodCode());
-                    if (scrgmod.getDefaultInd().equals("D")) gmodCodesAsString.append(" (default)");
-                }
-                runData.addMessage(format("BannerUpdater: Inserted %d new SCRGMOD records: %s, for: %s:%s:%s:%s", gmodCodesCount,
-                        gmodCodesAsString.toString(), instCode, subjCode, crseNumb, effTerm));
-
-                // Scrschd
-                int schdCodesCount = 0;
-                StringBuilder schdCodesAsString = new StringBuilder();
-                for (Scrschd scrschd : convertedScbcrse.getListOfScrschd()) {
-                    recCount = scrschdDao.insert(scrschd);
-                    schdCodesCount += recCount;
-                    if (schdCodesCount > 1) schdCodesAsString.append(", ");
-                    schdCodesAsString.append(scrschd.getSchdCode());
-                }
-                runData.addMessage(format("BannerUpdater: Inserted %d new SCRSCHD records: %s, for: %s:%s:%s:%s", schdCodesCount,
-                        schdCodesAsString.toString(), instCode, subjCode, crseNumb, effTerm));
-
-                // Scrattr
-                int attrCodesCount = 0;
-                StringBuilder attrCodesAsString = new StringBuilder();
-                for (Scrattr scrattr : convertedScbcrse.getListOfScrattr()) {
-                    recCount = scrattrDao.insert(scrattr);
-                    attrCodesCount += recCount;
-                    if (attrCodesCount > 1) attrCodesAsString.append(", ");
-                    attrCodesAsString.append(scrattr.getAttrCode());
-                }
-                runData.addMessage(format("BannerUpdater: Inserted %d new SCRATTR records: %s, for: %s:%s:%s:%s", attrCodesCount,
-                        attrCodesAsString.toString(), instCode, subjCode, crseNumb, effTerm));
             } else {
                 runData.addMessage(format("BannerUpdater: SCBCRKY record already exists for %s:%s:%s:%s:%s. No need to create.", scbcrky.getVpdiCode(),
                         scbcrky.getSubjCode(), scbcrky.getCrseNumb(), scbcrky.getTermCodeStart(), scbcrky.getTermCodeEnd()));
@@ -200,22 +152,29 @@ public class BannerUpdaterService {
                         || scbcrky.getTermCodeEnd().compareTo(effTerm) < 0) {
                     runData.addMessage(format("BannerUpdater: KSCM course start term '%s' is not within SCABASE range (%s - %s)", effTerm, scbcrky
                             .getTermCodeStart(), scbcrky.getTermCodeEnd()));
-                    runData.setStatus(Status.FAILURE);
+                    runData.setStatus(Status.FAILED);
                     throw new Exception("KSCM course start term wasn't within SCABASE range");
                 }
-                // For each record type, update or insert depending on whether existing record's effTerm equals the new scbcrse record's effTerm.
-                // Comparisons are done to see if the UPDATE/INSERT is truly needed.
-                insertOrUpdateScbcrse(runData);
-                insertOrUpdateScbdesc(runData);
-                insertOrUpdateScrsyln(runData);
-                insertOrUpdateScrlevl(runData);
-                insertOrUpdateScrgmod(runData);
-                insertOrUpdateScrschd(runData);
-                insertOrUpdateScrattr(runData);
-
             }
+            // For each record type, update or insert depending on whether existing record's effTerm equals the new scbcrse record's effTerm.
+            // Comparisons with existing Banner data are done to see if the UPDATE/INSERT is truly needed.
+            insertOrUpdateScbcrse(runData);
+            insertOrUpdateScbdesc(runData);
+            insertOrUpdateScrsyln(runData);
+            insertOrUpdateScrsylo(runData);
+            insertOrUpdateScrlevl(runData);
+            insertOrUpdateScrgmod(runData);
+            insertOrUpdateScrschd(runData);
+            insertOrUpdateScrattr(runData);
+            insertOrUpdateScbsupp(runData);
+            insertOrUpdateScrintg(runData);
+            insertOrUpdateScrtext(runData);
+            insertOrUpdateScrfees(runData);
+            insertOrUpdateScreqiv(runData);
+            insertOrUpdateScrcorq(runData);
         }
     }
+
 
     private void insertOrUpdateScbcrse(RunData runData) throws Exception {
         int recCount = 0;
@@ -321,10 +280,11 @@ public class BannerUpdaterService {
         // Get SCRSYLN record in effect at effTerm
         Scrsyln effScrsyln = scrsylnDao.getEffective(subjCode, crseNumb, effTerm);
         if (convertedScrsyln == null && effScrsyln != null) {
-            // To handle this situation, we need to apply a SCRSYLN record with LONG_COURSE_TITLE value of null
+            // To handle this situation, we need to apply a SCRSYLN record with LONG_COURSE_TITLE and COURSE_URL value of null
             convertedScrsyln = new Scrsyln();
             BeanUtils.copyProperties(effScrsyln, convertedScrsyln);
             convertedScrsyln.setLongCourseTitle(null);
+            convertedScrsyln.setCourseUrl(null);
         }
         Op op;
         if (effScrsyln == null) {
@@ -338,8 +298,8 @@ public class BannerUpdaterService {
         }
         if (!different(convertedScrsyln, effScrsyln)) {
             runData.addMessage(format("BannerUpdater: No changes detected to long course title. Skipping %s of SCRSYLN record for " +
-                            "%s:%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm,
-                    Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40)));
+                            "%s:%s:%s:%s:{LongTitle: %s, URL: %s}", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm,
+                    Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40), Util.javaQuote(convertedScrsyln.getCourseUrl(), 40)));
         } else {
             switch (op) {
                 case INSERT:
@@ -358,26 +318,86 @@ public class BannerUpdaterService {
                                     effScrsyln.getTermCodeEff(), recCount, runData.getInstCode(), subjCode, crseNumb, effTerm));
                         }
                     }
-                    runData.addMessage(format("BannerUpdater: inserted %d SCRSYLN record for %s:%s:%s:%s:%s", recCount,
-                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40)));
+                    runData.addMessage(format("BannerUpdater: inserted %d SCRSYLN record for %s:%s:%s:%s:{LongTitle: %s, URL: %s}", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40), Util
+                                    .javaQuote(convertedScrsyln.getCourseUrl(), 40)));
                     break;
                 case UPDATE:
                     recCount = scrsylnDao.update(convertedScrsyln);
-                    runData.addMessage(format("BannerUpdater: updated %d SCRSYLN record: %s:%s:%s:%s:%s", recCount,
-                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40)));
+                    runData.addMessage(format("BannerUpdater: updated %d SCRSYLN record: %s:%s:%s:%s:{LongTitle: %s, URL: %s}", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsyln.getLongCourseTitle(), 40), Util
+                                    .javaQuote(convertedScrsyln.getCourseUrl(), 40)));
                     break;
             }
         }
     }
 
-    private void insertOrUpdateScrlevl(RunData runData) throws Exception{
+    private void insertOrUpdateScrsylo(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        Scrsylo convertedScrsylo = runData.getConvertedScbcrse().getScrsylo();
+        // Get SCRSYLO record in effect at effTerm
+        Scrsylo effScrsylo = scrsyloDao.getEffective(subjCode, crseNumb, effTerm);
+        if (convertedScrsylo == null && effScrsylo != null) {
+            // To handle this situation, we need to apply a SCRSYLO record with Learning Objectives value of null
+            convertedScrsylo = new Scrsylo();
+            BeanUtils.copyProperties(effScrsylo, convertedScrsylo);
+            convertedScrsylo.setLearningObjectives(null);
+        }
+        Op op;
+        if (effScrsylo == null) {
+            op = Op.INSERT;
+        } else {
+            if (effScrsylo.getTermCodeEff().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!different(convertedScrsylo, effScrsylo)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to Learning Objectives. Skipping %s of SCRSYLO record for " +
+                            "%s:%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm,
+                    Util.javaQuote(convertedScrsylo == null ? null : convertedScrsylo.getLearningObjectives(), 40)));
+        } else {
+            switch (op) {
+                case INSERT:
+                    // Get future record to determine TERM_CODE_END
+                    Scrsylo futureScrsylo = scrsyloDao.getFuture(subjCode, crseNumb, effTerm);
+                    if (futureScrsylo != null) {
+                        convertedScrsylo.setTermCodeEnd(futureScrsylo.getTermCodeEff());
+                    }
+                    recCount = scrsyloDao.insert(convertedScrsylo);
+                    if (effScrsylo != null) {
+                        // Need to update effScrsylo to update its TermCodeEnd to the newly inserted record
+                        effScrsylo.setTermCodeEnd(effTerm);
+                        recCount = scrsyloDao.update(effScrsylo);
+                        if (recCount != 1) {
+                            throw new Exception(format("Problem updating older (%s) SCRSYLO record's TERM_CODE_END: RecCount: %d for %s %s %s %s",
+                                    effScrsylo.getTermCodeEff(), recCount, runData.getInstCode(), subjCode, crseNumb, effTerm));
+                        }
+                    }
+                    runData.addMessage(format("BannerUpdater: inserted %d SCRSYLO record for %s:%s:%s:%s:%s", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsylo.getLearningObjectives(), 40)));
+                    break;
+                case UPDATE:
+                    recCount = scrsyloDao.update(convertedScrsylo);
+                    runData.addMessage(format("BannerUpdater: updated %d SCRSYLO record: %s:%s:%s:%s:%s", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScrsylo.getLearningObjectives(), 40)));
+                    break;
+            }
+        }
+    }
+
+    private void insertOrUpdateScrlevl(RunData runData) throws Exception {
         int recCount = 0;
         String subjCode = runData.getSubjCode();
         String crseNumb = runData.getCrseNumb();
         String effTerm = runData.getEffTerm();
         List<Scrlevl> convertedListOfScrlevl = runData.getConvertedScbcrse().getListOfScrlevl();
         // Get list of SCRLEVL records in effect at effTerm
-        List<Scrlevl>  effListOfScrlevl = scrlevlDao.getEffective(subjCode, crseNumb, effTerm);
+        List<Scrlevl> effListOfScrlevl = scrlevlDao.getEffective(subjCode, crseNumb, effTerm);
         Op op;
         if (effListOfScrlevl.size() == 0) {
             op = Op.INSERT;
@@ -390,7 +410,7 @@ public class BannerUpdaterService {
         }
         if (!differentListOfScrlevl(convertedListOfScrlevl, effListOfScrlevl)) {
             runData.addMessage(format("BannerUpdater: No changes detected to Level Codes. Skipping %s of SCRLEVL records for " +
-                            "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
         } else {
             if (op == Op.UPDATE) {
                 // UPDATE is accomplished by DELETE + INSERT
@@ -409,14 +429,14 @@ public class BannerUpdaterService {
         }
     }
 
-    private void insertOrUpdateScrgmod(RunData runData) throws Exception{
+    private void insertOrUpdateScrgmod(RunData runData) throws Exception {
         int recCount = 0;
         String subjCode = runData.getSubjCode();
         String crseNumb = runData.getCrseNumb();
         String effTerm = runData.getEffTerm();
         List<Scrgmod> convertedListOfScrgmod = runData.getConvertedScbcrse().getListOfScrgmod();
         // Get list of SCRGMOD records in effect at effTerm
-        List<Scrgmod>  effListOfScrgmod = scrgmodDao.getEffective(subjCode, crseNumb, effTerm);
+        List<Scrgmod> effListOfScrgmod = scrgmodDao.getEffective(subjCode, crseNumb, effTerm);
         Op op;
         if (effListOfScrgmod.size() == 0) {
             op = Op.INSERT;
@@ -448,14 +468,14 @@ public class BannerUpdaterService {
         }
     }
 
-    private void insertOrUpdateScrschd(RunData runData) throws Exception{
+    private void insertOrUpdateScrschd(RunData runData) throws Exception {
         int recCount = 0;
         String subjCode = runData.getSubjCode();
         String crseNumb = runData.getCrseNumb();
         String effTerm = runData.getEffTerm();
         List<Scrschd> convertedListOfScrschd = runData.getConvertedScbcrse().getListOfScrschd();
         // Get list of SCRSCHD records in effect at effTerm
-        List<Scrschd>  effListOfScrschd = scrschdDao.getEffective(subjCode, crseNumb, effTerm);
+        List<Scrschd> effListOfScrschd = scrschdDao.getEffective(subjCode, crseNumb, effTerm);
         Op op;
         if (effListOfScrschd.size() == 0) {
             op = Op.INSERT;
@@ -487,14 +507,14 @@ public class BannerUpdaterService {
         }
     }
 
-    private void insertOrUpdateScrattr(RunData runData) throws Exception{
+    private void insertOrUpdateScrattr(RunData runData) throws Exception {
         int recCount = 0;
         String subjCode = runData.getSubjCode();
         String crseNumb = runData.getCrseNumb();
         String effTerm = runData.getEffTerm();
         List<Scrattr> convertedListOfScrattr = runData.getConvertedScbcrse().getListOfScrattr();
         // Get list of SCRATTR records in effect at effTerm
-        List<Scrattr>  effListOfScrattr = scrattrDao.getEffective(subjCode, crseNumb, effTerm);
+        List<Scrattr> effListOfScrattr = scrattrDao.getEffective(subjCode, crseNumb, effTerm);
         Op op;
         if (effListOfScrattr.size() == 0) {
             op = Op.INSERT;
@@ -526,6 +546,257 @@ public class BannerUpdaterService {
         }
     }
 
+    private void insertOrUpdateScbsupp(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        Scbsupp convertedScbsupp = runData.getConvertedScbcrse().getScbsupp();
+        // Get SCBSUPP record in effect at effTerm
+        Scbsupp effScbsupp = scbsuppDao.getEffective(subjCode, crseNumb, effTerm);
+        if (convertedScbsupp == null && effScbsupp != null) {
+            // To handle this situation, we need to apply a SCBSUPP record with SCBSUPP_CUDA_CODE value of null
+            convertedScbsupp = new Scbsupp();
+            BeanUtils.copyProperties(effScbsupp, convertedScbsupp);
+            convertedScbsupp.setCudaCode(null);
+        }
+        Op op;
+        if (effScbsupp == null) {
+            op = Op.INSERT;
+        } else {
+            if (effScbsupp.getEffTerm().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!different(convertedScbsupp, effScbsupp)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to SCBSUPP_CUDA_CODE. Skipping %s of SCBSUPP record for " +
+                            "%s:%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm,
+                    Util.javaQuote(convertedScbsupp == null ? null : convertedScbsupp.getCudaCode(), 40)));
+        } else {
+            switch (op) {
+                case INSERT:
+                    recCount = scbsuppDao.insert(convertedScbsupp);
+                    runData.addMessage(format("BannerUpdater: inserted %d SCBSUPP record for %s:%s:%s:%s:%s", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScbsupp.getCudaCode(), 40)));
+                    break;
+                case UPDATE:
+                    recCount = scbsuppDao.update(convertedScbsupp);
+                    runData.addMessage(format("BannerUpdater: updated %d SCBSUPP record: %s:%s:%s:%s:%s", recCount,
+                            runData.getInstCode(), subjCode, crseNumb, effTerm, Util.javaQuote(convertedScbsupp.getCudaCode(), 40)));
+                    break;
+            }
+        }
+    }
+
+    private void insertOrUpdateScrintg(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        List<Scrintg> convertedListOfScrintg = runData.getConvertedScbcrse().getListOfScrintg();
+        // Get list of SCRINTG records in effect at effTerm
+        List<Scrintg> effListOfScrintg = scrintgDao.getEffective(subjCode, crseNumb, effTerm);
+        Op op;
+        if (effListOfScrintg.size() == 0) {
+            op = Op.INSERT;
+        } else {
+            if (effListOfScrintg.get(0).getTermCodeEff().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!differentListOfScrintg(convertedListOfScrintg, effListOfScrintg)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to Integration Partner Codes. Skipping %s of SCRINTG records for " +
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+        } else {
+            if (op == Op.UPDATE) {
+                // UPDATE is accomplished by DELETE + INSERT
+                recCount = scrintgDao.delete(subjCode, crseNumb, effTerm);
+                runData.addMessage(format("BannerUpdater: deleted %d SCRINTG records for %s:%s:%s:%s in preparation for inserts.", recCount,
+                        runData.getInstCode(), subjCode, crseNumb, effTerm));
+            }
+            recCount = 0;
+            List<String> intgCodes = new ArrayList<>();
+            for (Scrintg convertedScrintg : convertedListOfScrintg) {
+                intgCodes.add(convertedScrintg.getIntgCde());
+                recCount += scrintgDao.insert(convertedScrintg);
+            }
+            runData.addMessage(format("BannerUpdater: inserted %d SCRINTG records for %s:%s:%s:%s:%s", recCount,
+                    runData.getInstCode(), subjCode, crseNumb, effTerm, join(", ", intgCodes)));
+        }
+    }
+
+    private void insertOrUpdateScrtext(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        List<Scrtext> convertedListOfScrtext = runData.getConvertedScbcrse().getListOfScrtext();
+        // Get list of SCRTEXT records in effect at effTerm
+        List<Scrtext> effListOfScrtext = scrtextDao.getEffective(subjCode, crseNumb, effTerm);
+        Op op;
+        if (effListOfScrtext.size() == 0) {
+            op = Op.INSERT;
+        } else {
+            if (effListOfScrtext.get(0).getEffTerm().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!differentListOfScrtext(convertedListOfScrtext, effListOfScrtext)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to SCRTEXT records. Skipping %s of SCRTEXT records for " +
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+        } else {
+            if (op == Op.UPDATE) {
+                // UPDATE is accomplished by DELETE + INSERT
+                recCount = scrtextDao.delete(subjCode, crseNumb, effTerm);
+                runData.addMessage(format("BannerUpdater: deleted %d SCRTEXT records for %s:%s:%s:%s in preparation for inserts.", recCount,
+                        runData.getInstCode(), subjCode, crseNumb, effTerm));
+            }
+            recCount = 0;
+            for (Scrtext convertedScrtext : convertedListOfScrtext) {
+                recCount += scrtextDao.insert(convertedScrtext);
+            }
+            runData.addMessage(format("BannerUpdater: inserted %d SCRTEXT records for %s:%s:%s:%s", recCount,
+                    runData.getInstCode(), subjCode, crseNumb, effTerm));
+        }
+    }
+
+    private void insertOrUpdateScrfees(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        List<Scrfees> convertedListOfScrfees = runData.getConvertedScbcrse().getListOfScrfees();
+        // Get list of SCRFEES records in effect at effTerm
+        List<Scrfees> effListOfScrfees = scrfeesDao.getEffective(subjCode, crseNumb, effTerm);
+        Op op;
+        if (effListOfScrfees.size() == 0) {
+            op = Op.INSERT;
+        } else {
+            if (effListOfScrfees.get(0).getEffTerm().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!differentListOfScrfees(convertedListOfScrfees, effListOfScrfees)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to Fees. Skipping %s of SCRFEES records for " +
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+        } else {
+            if (op == Op.UPDATE) {
+                // UPDATE is accomplished by DELETE + INSERT
+                recCount = scrfeesDao.delete(subjCode, crseNumb, effTerm);
+                runData.addMessage(format("BannerUpdater: deleted %d SCRFEES records for %s:%s:%s:%s in preparation for inserts.", recCount,
+                        runData.getInstCode(), subjCode, crseNumb, effTerm));
+            }
+            recCount = 0;
+            List<String> fees = new ArrayList<>();
+            for (Scrfees convertedScrfees : convertedListOfScrfees) {
+                fees.add(convertedScrfees.getDetlCode() + ":" + convertedScrfees.getFeeAmount());
+                recCount += scrfeesDao.insert(convertedScrfees);
+            }
+            runData.addMessage(format("BannerUpdater: inserted %d SCRFEES records for %s:%s:%s:%s:%s", recCount,
+                    runData.getInstCode(), subjCode, crseNumb, effTerm, join(", ", fees)));
+        }
+    }
+
+    private void insertOrUpdateScreqiv(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        List<Screqiv> convertedListOfScreqiv = runData.getConvertedScbcrse().getListOfScreqiv();
+        // Get list of SCREQIV records in effect at effTerm
+        List<Screqiv> effListOfScreqiv = screqivDao.getEffective(subjCode, crseNumb, effTerm);
+        Op op;
+        if (effListOfScreqiv.size() == 0) {
+            op = Op.INSERT;
+        } else {
+            if (effListOfScreqiv.get(0).getEffTerm().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!differentListOfScreqiv(convertedListOfScreqiv, effListOfScreqiv)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to equivalent courses. Skipping %s of SCREQIV records for " +
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+        } else {
+            if (op == Op.UPDATE) {
+                // UPDATE is accomplished by DELETE + INSERT
+                recCount = screqivDao.delete(subjCode, crseNumb, effTerm);
+                runData.addMessage(format("BannerUpdater: deleted %d SCREQIV records for %s:%s:%s:%s in preparation for inserts.", recCount,
+                        runData.getInstCode(), subjCode, crseNumb, effTerm));
+            }
+            recCount = 0;
+            List<String> eqiv = new ArrayList<>();
+            for (Screqiv convertedScreqiv : convertedListOfScreqiv) {
+                eqiv.add(convertedScreqiv.getSubjCodeEqiv() + convertedScreqiv.getCrseNumbEqiv());
+                recCount += screqivDao.insert(convertedScreqiv);
+            }
+            runData.addMessage(format("BannerUpdater: inserted %d SCREQIV records for %s:%s:%s:%s:%s", recCount,
+                    runData.getInstCode(), subjCode, crseNumb, effTerm, join(", ", eqiv)));
+        }
+    }
+
+    private void insertOrUpdateScrcorq(RunData runData) throws Exception {
+        int recCount = 0;
+        String subjCode = runData.getSubjCode();
+        String crseNumb = runData.getCrseNumb();
+        String effTerm = runData.getEffTerm();
+        List<Scrcorq> convertedListOfScrcorq = runData.getConvertedScbcrse().getListOfScrcorq();
+        // Get list of SCRCORQ records in effect at effTerm
+        List<Scrcorq> effListOfScrcorq = scrcorqDao.getEffective(subjCode, crseNumb, effTerm);
+        Op op;
+        if (effListOfScrcorq.size() == 0) {
+            op = Op.INSERT;
+        } else {
+            if (effListOfScrcorq.get(0).getEffTerm().equals(effTerm)) {
+                op = Op.UPDATE;
+            } else {
+                op = Op.INSERT;
+            }
+        }
+        if (!differentListOfScrcorq(convertedListOfScrcorq, effListOfScrcorq)) {
+            runData.addMessage(format("BannerUpdater: No changes detected to equivalent courses. Skipping %s of SCRCORQ records for " +
+                    "%s:%s:%s:%s", op.getPresentTense(), runData.getInstCode(), subjCode, crseNumb, effTerm));
+        } else {
+            if (op == Op.UPDATE) {
+                // UPDATE is accomplished by DELETE + INSERT
+                recCount = scrcorqDao.delete(subjCode, crseNumb, effTerm);
+                runData.addMessage(format("BannerUpdater: deleted %d SCRCORQ records for %s:%s:%s:%s in preparation for inserts.", recCount,
+                        runData.getInstCode(), subjCode, crseNumb, effTerm));
+            }
+            recCount = 0;
+            List<String> corq = new ArrayList<>();
+            for (Scrcorq convertedScrcorq : convertedListOfScrcorq) {
+                corq.add(convertedScrcorq.getSubjCodeCorq() + convertedScrcorq.getCrseNumbCorq());
+                recCount += scrcorqDao.insert(convertedScrcorq);
+            }
+            runData.addMessage(format("BannerUpdater: inserted %d SCRCORQ records for %s:%s:%s:%s:%s", recCount,
+                    runData.getInstCode(), subjCode, crseNumb, effTerm, join(", ", corq)));
+        }
+    }
+
+    boolean different(Scbsupp n, Scbsupp o) {
+        // return true at first detected difference
+        if (n == null && o == null) return false;
+        if (n == null && o != null) return true;
+        if (n != null && o == null) return true;
+        if (n.getCudaCode() == null && o.getCudaCode() == null) return false;
+        if (n.getCudaCode() == null && o.getCudaCode() != null) return true;
+        if (n.getCudaCode() != null && o.getCudaCode() == null) return true;
+        if (!n.getCudaCode().equals(o.getCudaCode())) {
+            return true;
+        }
+        return false;
+    }
+
     boolean different(Scbdesc n, Scbdesc o) {
         // return true at first detected difference
         assert n != null;
@@ -540,9 +811,27 @@ public class BannerUpdaterService {
         // return true at first detected difference
         assert n != null;
         if (o == null) return true;
-        if (n.getLongCourseTitle() == null && o.getLongCourseTitle() == null) return false;
         if (n.getLongCourseTitle() != null && o.getLongCourseTitle() == null) return true;
+        if (n.getLongCourseTitle() == null && o.getLongCourseTitle() != null) return true;
         if (n.getLongCourseTitle() != null && !n.getLongCourseTitle().equals(o.getLongCourseTitle())) {
+            return true;
+        }
+        if (n.getCourseUrl() != null && o.getCourseUrl() == null) return true;
+        if (n.getCourseUrl() == null && o.getCourseUrl() != null) return true;
+        if (n.getCourseUrl() != null && !n.getCourseUrl().equals(o.getCourseUrl())) {
+            return true;
+        }
+        return false;
+    }
+
+    boolean different(Scrsylo n, Scrsylo o) {
+        // return true at first detected difference
+        if (n == null && o == null) return false;
+        if (n == null && o != null) return true;
+        if (n != null && o == null) return true;
+        if (n.getLearningObjectives() == null && o.getLearningObjectives() == null) return false;
+        if (n.getLearningObjectives() != null && o.getLearningObjectives() == null) return true;
+        if (n.getLearningObjectives() != null && !n.getLearningObjectives().equals(o.getLearningObjectives())) {
             return true;
         }
         return false;
@@ -550,9 +839,7 @@ public class BannerUpdaterService {
 
     boolean different(Scrlevl n, Scrlevl o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         // levlCode should never be null
-        assert n.getLevlCode() != null; assert o.getLevlCode() != null;
         if (!n.getLevlCode().equals(o.getLevlCode())) {
             return true;
         }
@@ -561,7 +848,6 @@ public class BannerUpdaterService {
 
     boolean differentListOfScrlevl(List<Scrlevl> n, List<Scrlevl> o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         if (n.size() != o.size()) return true;
         boolean has = false;
         for (Scrlevl nScrlevl : n) {
@@ -581,9 +867,9 @@ public class BannerUpdaterService {
 
     boolean different(Scrgmod n, Scrgmod o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         // note: gmodCode is never null
-        assert n.getGmodCode() != null; assert o.getGmodCode() != null;
+        assert n.getGmodCode() != null;
+        assert o.getGmodCode() != null;
         if (!n.getGmodCode().equals(o.getGmodCode())) {
             return true;
         }
@@ -595,7 +881,6 @@ public class BannerUpdaterService {
 
     boolean differentListOfScrgmod(List<Scrgmod> n, List<Scrgmod> o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         if (n.size() != o.size()) return true;
         boolean has = false;
         for (Scrgmod nScrgmod : n) {
@@ -615,9 +900,9 @@ public class BannerUpdaterService {
 
     boolean different(Scrschd n, Scrschd o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         // schdCode should never be null
-        assert n.getSchdCode() != null; assert o.getSchdCode() != null;
+        assert n.getSchdCode() != null;
+        assert o.getSchdCode() != null;
         if (!n.getSchdCode().equals(o.getSchdCode())) {
             return true;
         }
@@ -626,7 +911,6 @@ public class BannerUpdaterService {
 
     boolean differentListOfScrschd(List<Scrschd> n, List<Scrschd> o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         if (n.size() != o.size()) return true;
         boolean has = false;
         for (Scrschd nScrschd : n) {
@@ -646,9 +930,9 @@ public class BannerUpdaterService {
 
     boolean different(Scrattr n, Scrattr o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         // attrCode should never be null
-        assert n.getAttrCode() != null; assert o.getAttrCode() != null;
+        assert n.getAttrCode() != null;
+        assert o.getAttrCode() != null;
         if (!n.getAttrCode().equals(o.getAttrCode())) {
             return true;
         }
@@ -657,7 +941,6 @@ public class BannerUpdaterService {
 
     boolean differentListOfScrattr(List<Scrattr> n, List<Scrattr> o) {
         // return true at first detected difference
-        assert n != null; assert o != null;
         if (n.size() != o.size()) return true;
         boolean has = false;
         for (Scrattr nScrattr : n) {
@@ -671,6 +954,80 @@ public class BannerUpdaterService {
                 // n has value that o does not have
                 return true;
             }
+        }
+        return false;
+    }
+
+    boolean different(Scrintg n, Scrintg o) {
+        // return true at first detected difference
+        // intgCode should never be null
+        assert n.getIntgCde() != null;
+        assert o.getIntgCde() != null;
+        if (!n.getIntgCde().equals(o.getIntgCde())) {
+            return true;
+        }
+        return false;
+    }
+
+    boolean differentListOfScrintg(List<Scrintg> n, List<Scrintg> o) {
+        // return true at first detected difference
+        if (n.size() != o.size()) return true;
+        boolean has = false;
+        for (Scrintg nScrintg : n) {
+            for (Scrintg oScrintg : o) {
+                if (!different(nScrintg, oScrintg)) {
+                    has = true;
+                    break;
+                }
+            }
+            if (!has) {
+                // n has value that o does not have
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean differentListOfScrtext(List<Scrtext> n, List<Scrtext> o) {
+        // return true at first detected difference
+        if (n.size() != o.size()) return true;
+        for (int i = 0; i < n.size(); i++) {
+            if (n.get(i).getText() == null) return true;
+            if (!n.get(i).getText().equals(o.get(i).getText())) return true;
+        }
+        return false;
+    }
+
+    boolean differentListOfScrfees(List<Scrfees> n, List<Scrfees> o) {
+        // return true at first detected difference
+        if (n.size() != o.size()) return true;
+        for (int i = 0; i < n.size(); i++) {
+            if (!n.get(i).getDetlCode().equals(o.get(i).getDetlCode())) return true;
+            if (!n.get(i).getFeeAmount().equals(o.get(i).getFeeAmount())) return true;
+            if (n.get(i).getSeqno() != o.get(i).getSeqno()) return true;
+            if (!n.get(i).getFtypCode().equals(o.get(i).getFtypCode())) return true;
+        }
+        return false;
+    }
+
+    boolean differentListOfScreqiv(List<Screqiv> n, List<Screqiv> o) {
+        // return true at first detected difference
+        if (n.size() != o.size()) return true;
+        for (int i = 0; i < n.size(); i++) {
+            if (!n.get(i).getCrseNumbEqiv().equals(o.get(i).getCrseNumbEqiv())) return true;
+            if (!n.get(i).getSubjCodeEqiv().equals(o.get(i).getSubjCodeEqiv())) return true;
+            if (!n.get(i).getStartTerm().equals(o.get(i).getStartTerm())) return true;
+            if (!n.get(i).getEndTerm().equals(o.get(i).getEndTerm())) return true;
+        }
+        return false;
+    }
+
+    boolean differentListOfScrcorq(List<Scrcorq> n, List<Scrcorq> o) {
+        // return true at first detected difference
+        if (n.size() != o.size()) return true;
+        for (int i = 0; i < n.size(); i++) {
+            if (!n.get(i).getCrseNumbCorq().equals(o.get(i).getCrseNumbCorq())) return true;
+            if (!n.get(i).getSubjCodeCorq().equals(o.get(i).getSubjCodeCorq())) return true;
         }
         return false;
     }

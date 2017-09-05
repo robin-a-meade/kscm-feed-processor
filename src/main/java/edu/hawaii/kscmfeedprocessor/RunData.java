@@ -24,7 +24,7 @@ public class RunData {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // Default is SUCCESS. Any processing error will set this to FAILURE.
+    // Default is SUCCESS. Any processing error will set this to FAILED.
     private Status status = Status.SUCCESS;
 
     private ZonedDateTime zonedDateTime = ZonedDateTime.now();
@@ -74,17 +74,17 @@ public class RunData {
         sb.append(zonedDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)));
         sb.append("\n");
 
-        // Messages in reverse chronological order
+        // Messages in forward chronological order
 
-        Iterator it = messageList.descendingIterator();
+        Iterator it = messageList.iterator();
         while (it.hasNext()) {
             sb.append(it.next());
             sb.append("\n");
         }
 
-        // Print additional details if it was a FAILURE
+        // Print additional details if it was a FAILED
 
-        if (status == Status.FAILURE) {
+        if (status == Status.FAILED) {
             sb.append("\n\n");
             sb.append(String.format("kinesisPartitionKey: '%s'\n", kinesisPartitionKey));
             sb.append(String.format("instCode: '%s'\n", instCode));
@@ -279,7 +279,7 @@ public class RunData {
 
         r.addMessage("Step 2 failed", new RuntimeException("An exception occurred"));
 
-        r.setStatus(Status.FAILURE);
+        r.setStatus(Status.FAILED);
 
         System.out.println(r);
     }

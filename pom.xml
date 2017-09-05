@@ -5,7 +5,7 @@
 
   <groupId>edu.hawaii</groupId>
   <artifactId>kscm-feed-processor</artifactId>
-  <version>0.0.8-SNAPSHOT</version>
+  <version>0.7.10-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>KSCM feed processor</name>
@@ -59,12 +59,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- added Apr 17 -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jdbc</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -84,13 +78,15 @@
       <artifactId>jersey-client</artifactId>
       <version>${jersey.version}</version>
     </dependency>
+    <!--
+      "To use Jackson 2.x as your JSON provider you need to add jersey-media-json-jackson module to your pom.xml file"
+       https://jersey.github.io/documentation/latest/media.html#json.jackson
+    -->
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
       <version>${jersey.version}</version>
     </dependency>
-
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>

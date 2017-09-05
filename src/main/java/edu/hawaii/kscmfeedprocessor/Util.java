@@ -49,7 +49,7 @@ public class Util {
 
     public static String summarizeConverted(Scbcrse c) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Summary of converted data (not yet applied to banner):\n");
+        sb.append("Summary of converted data that we're about to apply to banner:\n");
         if (c == null) {
             sb.append("  null");
             return sb.toString();
@@ -98,12 +98,65 @@ public class Util {
             schdCodes.add(scrschd.getSchdCode());
         }
         sb.append(format("   SchdCodes: %s\n", join(", ", schdCodes)));
+
         // scrsyln
-        String longCourseTitle = null;
         if (c.getScrsyln() != null) {
+            String longCourseTitle = null;
+            String courseUrl = null;
             longCourseTitle = c.getScrsyln().getLongCourseTitle();
+            courseUrl = c.getScrsyln().getCourseUrl();
+            if (longCourseTitle != null) {
+                sb.append(format("   %s: %s\n", "LongCourseTitle", javaQuote(longCourseTitle, 65)));
+            }
+            if (courseUrl != null) {
+                sb.append(format("   %s: %s\n", "CourseUrl", javaQuote(courseUrl, 65)));
+            }
         }
-        sb.append(format("   %s: %s", "LongCourseTitle", javaQuote(longCourseTitle, 65)));
+
+        // scbsupp
+        if (c.getScbsupp() != null) {
+            String cudaCode = c.getScbsupp().getCudaCode();
+            if (cudaCode != null) {
+                sb.append(format("   %s: %s\n", "Institutional Reporting Code (SCBSUPP_CUDA)", javaQuote(cudaCode, 60)));
+            }
+        }
+        // scrintg
+        List<String> intgCodes = new ArrayList<>();
+        for (Scrintg scrintg : c.getListOfScrintg()) {
+            intgCodes.add(scrintg.getIntgCde());
+        }
+        sb.append(format("   Integration Partner Codes (SCRINTG): %s\n", join(", ", intgCodes)));
+
+        // scrtext
+        sb.append(format("   Course Text (SCRTEXT): %d rows\n", c.getListOfScrtext().size()));
+        if (c.getListOfScrtext().size() > 0) {
+            int index = 0;
+            for (Scrtext scrtext : c.getListOfScrtext()) {
+                index++;
+                sb.append(format("      %d: %s\n", index, scrtext.getText()));
+            }
+        }
+
+        // scrfees
+        List<String> fees = new ArrayList<>();
+        for (Scrfees scrfees : c.getListOfScrfees()) {
+            fees.add(scrfees.getDetlCode() + ":" + scrfees.getFeeAmount());
+        }
+        sb.append(format("   Fees (SCRFEES): %s\n", fees.size() == 0 ? "(none)" : join(", ", fees)));
+
+        // screqiv
+        List<String> eqiv = new ArrayList<>();
+        for (Screqiv screqiv : c.getListOfScreqiv()) {
+            eqiv.add(screqiv.getSubjCodeEqiv() + " " + screqiv.getCrseNumbEqiv() + " " + screqiv.getStartTerm() + "-" + screqiv.getEndTerm());
+        }
+        sb.append(format("   Equiv. Courses (SCREQIV): %s\n", eqiv.size() == 0 ? "(none)" : join(", ", eqiv)));
+
+        // scrcorq
+        List<String> corq = new ArrayList<>();
+        for (Scrcorq scrcorq : c.getListOfScrcorq()) {
+            corq.add(scrcorq.getSubjCodeCorq() + " " + scrcorq.getCrseNumbCorq());
+        }
+        sb.append(format("   Corequisites (SCRCORQ): %s\n", corq.size() == 0 ? "(none)" : join(", ", corq)));
 
         return sb.toString();
     }

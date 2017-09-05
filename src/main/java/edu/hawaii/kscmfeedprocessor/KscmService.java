@@ -1,6 +1,7 @@
 package edu.hawaii.kscmfeedprocessor;
 
 import edu.hawaii.kscmfeedprocessor.kscm.BannerIntegrationResults;
+import edu.hawaii.kscmfeedprocessor.kscm.CourseTextRow;
 import edu.hawaii.kscmfeedprocessor.kscm.KscmCourseVersion;
 import edu.hawaii.kscmfeedprocessor.kscm.KscmUser;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import static java.lang.String.format;
 
@@ -183,9 +185,9 @@ public class KscmService {
     }
 
 
-    public KscmCourseVersion retrieveKscmCourseVersion(RunData runData) {
+    public KscmCourseVersion retrieveKscmCourseVersion(RunData runData, String id) throws Exception {
         String instCode = runData.getInstCode();
-        String id = runData.getKscmCourseVersionId();
+        //String id = runData.getKscmCourseVersionId();
 
         logger.info("retrieveKscmCourseVersion: {} {}", instCode, id);
 
@@ -194,8 +196,8 @@ public class KscmService {
 
         // Build invocation
 
-            webTarget = webTargets.get(instCode);
-            webTarget = webTarget.path("/cm/courses/" + id);
+        webTarget = webTargets.get(instCode);
+        webTarget = webTarget.path("/cm/courses/" + id);
 
         try {
 
@@ -206,6 +208,7 @@ public class KscmService {
             // Invoke it
             kcv = invocation.invoke(KscmCourseVersion.class);
             kcv.setInstCode(instCode); // hack to deal with misspelled GKeys.
+            kcv.afterDeserialization();
 
             logger.trace("kcv: {}", kcv.toJson());
 
